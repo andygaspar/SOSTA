@@ -6,6 +6,10 @@ import datetime
 from os import walk
 
 
+"""
+Extract series from origin destination files
+"""
+
 from calendar import monthrange
 month = [0]
 for i in range(1, 12):
@@ -55,26 +59,6 @@ final_df.to_csv("series.csv", index=False)
 print(len(flights_found))
 
 
-
-
-
-
-
-
-
-
-#
-# _, _, filenames = next(walk("Coppie_OD/"))
-#
-# print("num files:", len(filenames))
-# fl_dict = {}
-#
-
-#
-# print(month[-1] + 31)
-# p = 0
-# num_series = 0
-# final_df = pd.DataFrame(columns=list(df.columns))
 
 
 
