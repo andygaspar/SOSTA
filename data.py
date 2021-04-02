@@ -17,7 +17,6 @@ for i in range(1, 12):
     month.append(monthrange(2018, i)[1]+month[-1])
 
 
-
 airports = pd.read_csv("data/airports.csv", index_col=None).drop(columns="Unnamed: 0")
 print(airports)
 

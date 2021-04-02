@@ -5,78 +5,41 @@ import numpy as np
 import datetime
 from os import walk
 
+pd.set_option('display.max_columns', None)
 
-from calendar import monthrange
-month = [0]
-for i in range(1, 12):
-    val = month[-1]
-    month.append(monthrange(2018, i)[1]+month[-1])
-
-
+# t = time.time()
+df = pd.read_csv('data/data_row_fulvio.csv', sep="\t")
 
 airports = pd.read_csv("data/airports.csv", index_col=None).drop(columns="Unnamed: 0")
 print(airports)
 
-_, _, filenames = next(walk("Coppie_OD/not_moved"))
+final_df = pd.DataFrame(columns=df.columns)
 
-num = 0
-num_series = 0
-flights_found = []
-df = pd.read_csv("Coppie_OD/not_moved/"+filenames[0], sep="\t")
-final_df = pd.DataFrame(columns=list(df.columns))
-print(df)
+i = 0
 
-for file in filenames:
-    if file[:4] in airports["airport"].tolist() or file[5:9] in airports["airport"].tolist():
-        num += 1
-        df = pd.read_csv("Coppie_OD/not_moved/"+file, sep="\t", index_col=False)
-        g = df.sort_values(by="date", ignore_index=True)
-        p = g["date"].apply(lambda d: month[int(d[5:7])] + int(d[8:10]))
-        g["date num"] = p.astype('int32')
-        print(num, num_series)
+for airport in airports["airport"]:
+    print(airport, i)
+    i += 1
+    temp = df[(df["estdepartureairport"] == airport) ^ (df["estarrivalairport"] == airport)]
+    final_df = pd.concat([final_df, temp])
 
-        for i in range(7):
-            hhh = g[((g["date num"] - min(p)-i) % 7 == 0) & (g["date num"] -  min(p)-i >= 0)]
-            if hhh.shape[0] > 0:
-                for cs in hhh["callsign"]:
-                    same_call = hhh[hhh["callsign"] == cs].copy()
-                    if same_call.shape[0] > 4:
-                        if cs not in flights_found:
-                            same_call["series"] = num_series
-                            final_df = pd.concat([final_df, same_call], ignore_index=True)
-                            flights_found.append(cs)
-                            num_series += 1
-
-final_df = final_df.drop(columns=["Unnamed: 0", "trajectory"])
-final_df["date num"] = final_df["date num"].astype(int)
-final_df["series"] = final_df["series"].astype(int)
-final_df.to_csv("series.csv", index=False)
-
-print(len(flights_found))
-
-
-
-
-
-
-
-
+final_df.to_csv("europe.csv")
 
 
 #
-# _, _, filenames = next(walk("Coppie_OD/"))
 #
-# print("num files:", len(filenames))
-# fl_dict = {}
+# df = pd.read_csv('croatia_2019.csv')
 #
-
-#
-# print(month[-1] + 31)
-# p = 0
-# num_series = 0
-# final_df = pd.DataFrame(columns=list(df.columns))
-
+# raf = df[['icao24', 'estdepartureairport', 'estarrivalairport', 'callsign','departureairportcandidatescount','arrivalairportcandidatescount', 'day']].copy()
+# raf.columns = ['icao24', 'departure', 'arrival', 'callsign','candidate dep airports','candidate arr airports', 'day']
+# raf.sort_values(by="day", inplace=True, ignore_index=True)
+# raf["week day"] = raf["day"].apply(lambda d: datetime.datetime.fromtimestamp(d).weekday())
+# raf["day"] = raf["day"].apply(lambda d: str(datetime.datetime.fromtimestamp(d))[:10])
 
 
 
-#
+
+
+
+
+
