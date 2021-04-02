@@ -53,7 +53,7 @@ for file in filenames:
 final_df = final_df.drop(columns=["Unnamed: 0", "trajectory"])
 final_df["date num"] = final_df["date num"].astype(int)
 final_df["series"] = final_df["series"].astype(int)
-final_df.to_csv("series.csv", index=False)
+final_df.to_csv("series_from_od.csv", index=False)
 
 print(len(flights_found))
 

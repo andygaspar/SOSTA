@@ -23,7 +23,7 @@ for airport in airports["airport"]:
     temp = df[(df["estdepartureairport"] == airport) ^ (df["estarrivalairport"] == airport)]
     final_df = pd.concat([final_df, temp])
 
-final_df.to_csv("europe.csv")
+final_df.to_csv("europe_2019.csv")
 
 
 #
