@@ -8,22 +8,38 @@ from os import walk
 pd.set_option('display.max_columns', None)
 
 # t = time.time()
-df = pd.read_csv('data/data_row_fulvio.csv', sep="\t")
+df = pd.read_csv('data/summer_2019.csv')
 
-airports = pd.read_csv("data/airports.csv", index_col=None).drop(columns="Unnamed: 0")
-print(airports)
+# flights = df["callsign"].unique()
+#
+# p = df["dep time"].apply(lambda d: datetime.datetime.fromtimestamp(d).time() if not np.isnan(d) else "NaN")
+# print(p)
+for day in range(7):
+    print(df[df["week day"]== day].shape)
 
-final_df = pd.DataFrame(columns=df.columns)
+print("***")
+df = pd.read_csv('data/series.csv')
+for day in range(7):
+    print(df[df["week day"]== day].shape)
 
-i = 0
 
-for airport in airports["airport"]:
-    print(airport, i)
-    i += 1
-    temp = df[(df["estdepartureairport"] == airport) ^ (df["estarrivalairport"] == airport)]
-    final_df = pd.concat([final_df, temp])
 
-final_df.to_csv("europe_2019.csv")
+# airports = pd.read_csv("data/airports.csv", index_col=None).drop(columns="Unnamed: 0")
+# print(airports)
+#
+# final_df = pd.DataFrame(columns=df.columns)
+#
+# i = 0
+#
+# for airport in airports["airport"]:
+#     print(airport, i)
+#     i += 1
+#     temp = df[(df["estdepartureairport"] == airport) ^ (df["estarrivalairport"] == airport)]
+#     final_df = pd.concat([final_df, temp])
+#
+# final_df.to_csv("europe_2019.csv")
+
+
 
 
 #

@@ -48,7 +48,7 @@ print(df.shape)
 df = df[(pd.to_datetime(df["day"]) >= datetime.datetime(2019, 3, 21)) &
         (pd.to_datetime(df["day"]) < datetime.datetime(2019, 10, 27))]
 print(df.shape)
-df.to_csv("data/summer_2019.csv", index_label=False, index=False)
+# df.to_csv("data/summer_2019.csv", index_label=False, index=False)
 
 #31 3 2019
 # p = datetime.strptime("2019-01-01", '%Y-%m-%d').date()
