@@ -14,11 +14,11 @@ df = pd.read_csv('data/summer_2019.csv')
 #
 # p = df["dep time"].apply(lambda d: datetime.datetime.fromtimestamp(d).time() if not np.isnan(d) else "NaN")
 # print(p)
-for day in range(7):
-    print(df[df["week day"]== day].shape)
+# for day in range(7):
+#     print(df[df["week day"]== day].shape)
 
 print("***")
-df = pd.read_csv('data/series.csv')
+df = pd.read_csv('data/series_1.csv')
 for day in range(7):
     print(df[df["week day"]== day].shape)
 
