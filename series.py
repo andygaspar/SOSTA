@@ -27,6 +27,7 @@ def compute_series(tup):
 
 if __name__ == '__main__':
     df = pd.read_csv("data/summer_2019.csv")
+    print(df.shape)
     airports = pd.read_csv("data/airports.csv")
 
     split_df = []
@@ -43,7 +44,7 @@ if __name__ == '__main__':
     final_df = pd.concat(result, ignore_index=True)
     pool.close()
     pool.join()
-
+    final_df = final_df[final_df.duplicated(subset=["departure", "arrival", "week day", "day", "callsign", "dep time"])]
     final_df["series"] = np.zeros(final_df.shape[0])
     ind = 0
     for series_code in final_df["series code"].unique():
