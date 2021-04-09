@@ -47,10 +47,14 @@ def day_converter(df_in):
 # final_df.to_csv("europe_2018.csv")
 
 df = pd.read_csv("data/europe_2018.csv")
-print(df.shape)
+print(df)
+df = rename(df)
+df = day_converter(df)
+
+
 df = df[(pd.to_datetime(df["day"]) >= datetime.datetime(2018, 3, 21)) &
         (pd.to_datetime(df["day"]) < datetime.datetime(2018, 10, 27))]
-print(df.shape)
+
 df.to_csv("data/summer_2018.csv", index_label=False, index=False)
 
 #31 3 2019
