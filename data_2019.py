@@ -10,7 +10,7 @@ pd.set_option('display.max_columns', None)
 
 
 def filter_airports(df_fulvio):
-    df = pd.read_csv('data/data_row_fulvio.csv', sep="\t")
+    df = pd.read_csv(df_fulvio, sep="\t")
 
     airports = pd.read_csv("data/airports.csv", index_col=None).drop(columns="Unnamed: 0")
     final_df = pd.DataFrame(columns=df.columns)
@@ -43,12 +43,15 @@ def day_converter(df_in):
     df_in["day"] = df_in["day"].apply(lambda d: str(datetime.datetime.fromtimestamp(d))[:10])
     return df_in
 
-df = pd.read_csv("data/europe_2019.csv")
+# final_df = filter_airports("data/data_row_fulvio_2018.csv")
+# final_df.to_csv("europe_2018.csv")
+
+df = pd.read_csv("data/europe_2018.csv")
 print(df.shape)
-df = df[(pd.to_datetime(df["day"]) >= datetime.datetime(2019, 3, 21)) &
-        (pd.to_datetime(df["day"]) < datetime.datetime(2019, 10, 27))]
+df = df[(pd.to_datetime(df["day"]) >= datetime.datetime(2018, 3, 21)) &
+        (pd.to_datetime(df["day"]) < datetime.datetime(2018, 10, 27))]
 print(df.shape)
-# df.to_csv("data/summer_2019.csv", index_label=False, index=False)
+df.to_csv("data/summer_2018.csv", index_label=False, index=False)
 
 #31 3 2019
 # p = datetime.strptime("2019-01-01", '%Y-%m-%d').date()
