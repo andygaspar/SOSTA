@@ -53,6 +53,7 @@ def find_series(df_summer, year, callsign_or_icao="callsign", save=False):
         ind += 1
 
     final_df["series"] = final_df["series"].astype(int)
+    final_df["airport"] = final_df["callsign"].apply(lambda call: call[:3])
     print(time.time() - t)
 
     if save:

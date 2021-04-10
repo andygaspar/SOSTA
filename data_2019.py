@@ -48,7 +48,6 @@ def from_row_to_season(df_row, year, save=False):
     # final_df.to_csv("europe"+str(year)+".csv")
     final_df = rename(final_df)
     final_df = day_converter(final_df)
-    final_df = day_converter(final_df)
     final_df = final_df[(pd.to_datetime(final_df["day"]) >= datetime.datetime(year, 3, 21)) &
                         (pd.to_datetime(final_df["day"]) < datetime.datetime(year, 10, 27))]
 
@@ -60,12 +59,6 @@ def from_row_to_season(df_row, year, save=False):
 
 # df = pd.read_csv("data/europe_2019.csv")
 # ddf = filter_airports("data/data_row_fulvio_2018.csv")
-
-
-#
-#
-#
-
 
 
 
