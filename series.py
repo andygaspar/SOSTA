@@ -61,4 +61,4 @@ def find_series(df_summer, year, callsign_or_icao="callsign", save=False):
     else:
         print(final_df)
 
-df = pd.read_csv("data/summer_2018.csv")
+# df = pd.read_csv("data/summer_2018.csv")
