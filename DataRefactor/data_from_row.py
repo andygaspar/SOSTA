@@ -10,7 +10,7 @@ pd.set_option('display.max_columns', None)
 def filter_airports(df_fulvio):
     df = pd.read_csv(df_fulvio, sep="\t")
 
-    airports = pd.read_csv("data/airports.csv", index_col=None).drop(columns="Unnamed: 0")
+    airports = pd.read_csv("../data/airports.csv", index_col=None).drop(columns="Unnamed: 0")
     final_df = pd.DataFrame(columns=df.columns)
     i = 0
     for airport in airports["airport"]:

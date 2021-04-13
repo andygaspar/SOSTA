@@ -27,13 +27,13 @@ def compute_series(tup):
 
 
 def find_series(df_summer, year, callsign_or_icao="callsign", save=False):
-    print(df.shape)
+
     airports = df_summer
 
     split_df = []
     ind = 0
     for airport in airports["airport"]:
-        split_df.append((df[(df["departure"] == airport) ^ (df["arrival"] == airport)].copy(),
+        split_df.append((df_summer[(df_summer["departure"] == airport) ^ (df_summer["arrival"] == airport)].copy(),
                          airport, ind, callsign_or_icao))
         ind += 1
 
