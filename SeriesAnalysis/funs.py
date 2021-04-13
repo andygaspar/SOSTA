@@ -10,11 +10,10 @@ from multiprocess import Pool
 
 
 def compute(tup):
-    fl_list, df, time_tolerance, min_occurrences, call_icao, dep_arrive = tup
+    series_list, df, time_tolerance, min_occurrences, call_icao, dep_arrive = tup
     regular = 0
-    print(df)
-    for flight in fl_list:
-        f = df[df[call_icao] == flight][dep_arrive]
+    for ser in series_list:
+        f = df[df.series == ser][dep_arrive]
         mean, std = f.mean(), f.std()
         if f[(f < mean + time_tolerance) & (f > mean - time_tolerance)].shape[0] / f.shape[0] > min_occurrences:
             regular += 1
@@ -28,10 +27,10 @@ def find_series_plot(df, day, call_icao, num_procs, dep_arrive, save=False):
 
     for j in range(7):
         df_day = df[df["week day"] == j]
-        flights_departure = df_day[call_icao].unique()
-        print(flights_departure.shape)
-        len_slice = flights_departure.shape[0] // num_procs
-        split_fl = [i * len_slice for i in range(num_procs)] + [flights_departure.shape[0]]
+        series = df_day.series.unique()
+        len_tot = series.shape[0]
+        len_slice = len_tot // num_procs
+        split_series = [i * len_slice for i in range(num_procs)] + [len_tot]
         fls = []
         t = time.time()
         for point in grid:
@@ -39,8 +38,8 @@ def find_series_plot(df, day, call_icao, num_procs, dep_arrive, save=False):
             print(point)
             time_tolerance = point[0]
             min_occurrence = point[1]
-            split_flights = tuple([(flights_departure[split_fl[i]:split_fl[i + 1]], df_day[
-                df_day[call_icao].isin(flights_departure[split_fl[i]:split_fl[i + 1]])], time_tolerance,
+            split_flights = tuple([(series[split_series[i]: split_series[i + 1]], df_day[
+                df_day.series.isin(series[split_series[i]: split_series[i + 1]])], time_tolerance,
                                     min_occurrence, call_icao, dep_arrive) for i in range(num_procs)])
             pool = Pool(num_procs)
             fls.append(sum(pool.map(compute, split_flights)))
