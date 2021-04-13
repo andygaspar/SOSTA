@@ -1,19 +1,20 @@
 import numpy as np
 import pandas as pd
 from multiprocessing import Pool
+import multiprocessing
 import time
 
 
 def compute_series(tup):
-    df_in, airp, num = tup
+    df_in, airp, num, callsign_or_icao = tup
     df_to_append = pd.DataFrame(columns=df_in.columns)
 
     for i in range(7):
         for key in ["departure", "arrival"]:
             hhh = df_in[df_in[key] == airp]
             hhh = hhh[hhh["week day"] == i]
-            for cs in hhh["callsign"].unique():
-                same_call = hhh[hhh["callsign"] == cs]
+            for cs in hhh[callsign_or_icao].unique():
+                same_call = hhh[hhh[callsign_or_icao] == cs]
                 other_key = "arrival" if key == "departure" else "departure"
                 for other_orig_dest in same_call[other_key].unique():
                     if same_call[same_call[other_key] == other_orig_dest].shape[0] > 4:
@@ -25,19 +26,19 @@ def compute_series(tup):
     return df_to_append
 
 
-if __name__ == '__main__':
-    df = pd.read_csv("data/summer_2019.csv")
+def find_series(df_summer, year, callsign_or_icao="callsign", save=False):
     print(df.shape)
-    airports = pd.read_csv("data/airports.csv")
+    airports = df_summer
 
     split_df = []
     ind = 0
     for airport in airports["airport"]:
-        split_df.append((df[(df["departure"] == airport) ^ (df["arrival"] == airport)].copy(), airport, ind))
+        split_df.append((df[(df["departure"] == airport) ^ (df["arrival"] == airport)].copy(),
+                         airport, ind, callsign_or_icao))
         ind += 1
 
     split_df = tuple(split_df)
-    num_procs = 16
+    num_procs = multiprocessing.cpu_count()
     t = time.time()
     pool = Pool(num_procs)
     result = pool.map(compute_series, split_df)
@@ -52,7 +53,12 @@ if __name__ == '__main__':
         ind += 1
 
     final_df["series"] = final_df["series"].astype(int)
+    final_df["airport"] = final_df["callsign"].apply(lambda call: call[:3])
     print(time.time() - t)
-    print(final_df)
 
-    final_df.to_csv("data/series_1.csv", index=False)
+    if save:
+        final_df.to_csv("data/series_"+str(year)+".csv", index=False)
+    else:
+        print(final_df)
+
+# df = pd.read_csv("data/summer_2018.csv")
