@@ -66,3 +66,11 @@ pool.join()
 
 
 print(time.time() - tt)
+
+lunedi = departures_2019[departures_2019["week day"] == 0]
+
+for flight in lunedi.callsign.unique()[:1000]:
+    d = lunedi[lunedi.callsign == flight]
+    pippo = d["departure"].unique()
+    if pippo.shape[0]>1:
+        print(d)
