@@ -6,7 +6,6 @@ import datetime
 
 pd.set_option('display.max_columns', None)
 
-
 def filter_airports(df_fulvio):
     df = pd.read_csv(df_fulvio, sep="\t")
 

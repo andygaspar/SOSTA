@@ -10,17 +10,18 @@ from multiprocess import Pool
 
 
 def compute(tup):
-    series_list, df, time_tolerance, min_occurrences, call_icao, dep_arrive = tup
+    series_list, df, time_tolerance, min_occurrences, call_icao, is_departure = tup
     regular = 0
+    dep_arr = "dep time minute" if is_departure else "arr time minute"
     for ser in series_list:
-        f = df[df.series == ser][dep_arrive]
+        f = df[df.series == ser][dep_arr]
         mean, std = f.mean(), f.std()
         if f[(f < mean + time_tolerance) & (f > mean - time_tolerance)].shape[0] / f.shape[0] > min_occurrences:
             regular += 1
     return regular
 
 
-def find_series_plot(df, day, call_icao, num_procs, dep_arrive, save=False):
+def find_series_plot(df, day, call_icao, num_procs, is_departure: bool, year, save=False):
     tol = [30, 35, 40, 45, 50, 55, 60]
     min_oc = [0.70, 0.75, 0.80, 0.85, 0.90, 0.95]
     grid = list(product(tol, min_oc))
@@ -40,7 +41,7 @@ def find_series_plot(df, day, call_icao, num_procs, dep_arrive, save=False):
             min_occurrence = point[1]
             split_flights = tuple([(series[split_series[i]: split_series[i + 1]], df_day[
                 df_day.series.isin(series[split_series[i]: split_series[i + 1]])], time_tolerance,
-                                    min_occurrence, call_icao, dep_arrive) for i in range(num_procs)])
+                                    min_occurrence, call_icao, is_departure) for i in range(num_procs)])
             pool = Pool(num_procs)
             fls.append(sum(pool.map(compute, split_flights)))
             pool.close()
@@ -65,7 +66,8 @@ def find_series_plot(df, day, call_icao, num_procs, dep_arrive, save=False):
                          verticalalignment='center')
         plt.scatter(points[0], points[1], s=fls * 1.5)
         if save:
-            plt.savefig("../plots/departures_icao"+day[j]+".png")
+            dep_arr = "departures" if is_departure else "arrivals"
+            plt.savefig("plots/"+dep_arr+"_"+str(year)+"_"+day[j]+".png")
             plt.cla()
             plt.clf()
             plt.close()
@@ -75,33 +77,36 @@ def find_series_plot(df, day, call_icao, num_procs, dep_arrive, save=False):
 
 
 def compute_series(tup):
-    fl_dep, dep, time_tolerance, min_occurrences, call_icao, dep_arrive = tup
+    series_list, dep, time_tolerance, min_occurrences, is_departure = tup
     columns = ['icao24', 'departure', 'arrival', 'callsign', 'day', 'week day', 'series code', 'series',
-               'airline', 'dep_or_arrival', 'mean_time']
+               'airline', 'is_departure', 'mean_time']
     series = pd.DataFrame(columns=columns)
-    for flight in fl_dep:
-        ser = dep[dep[call_icao] == flight]
-        f = ser[dep_arrive]
+    dep_arr = "dep time minute" if is_departure else "arr time minute"
+
+    for s in series_list:
+        ser = dep[dep.series == s]
+        ser = ser.sort_values(by="day")
+        f = ser[dep_arr]
         mean, std = f.mean(), f.std()
         if f[(f < mean + time_tolerance) & (f > mean - time_tolerance)].shape[0] / f.shape[0] > min_occurrences:
-            to_append = ser[columns[:-2]].iloc[0].to_list() + [dep_arrive] + [mean]
+            to_append = ser[columns[:-2]].iloc[0].to_list() + [is_departure] + [mean]
             series = series.append(dict(zip(columns, to_append)), ignore_index=True)
 
     return series
 
 
-def find_series(df, day, tol, min_occurrence, call_icao, dep_arrive, num_procs=1):
+def find_series(df, day, tol, min_occurrence, is_departure: bool, num_procs=1):
 
     df_day = df[df["week day"] == day]
-    flights_departure = df_day[call_icao].unique()
-    len_slice = flights_departure.shape[0] // num_procs
-    split_fl = [i * len_slice for i in range(num_procs)] + [flights_departure.shape[0]]
-
+    series = df_day.series.unique()
+    len_tot = series.shape[0]
+    len_slice = len_tot // num_procs
+    split_series = [i * len_slice for i in range(num_procs)] + [len_tot]
     partial_time = time.time()
 
-    split_flights = tuple([(flights_departure[split_fl[i]:split_fl[i + 1]],
-                            df_day[df_day[call_icao].isin(flights_departure[split_fl[i]:split_fl[i + 1]])],
-                            tol, min_occurrence, call_icao, dep_arrive) for i in range(num_procs)])
+    split_flights = tuple([(series[split_series[i]: split_series[i + 1]], df_day[
+        df_day.series.isin(series[split_series[i]: split_series[i + 1]])], tol,
+                            min_occurrence, is_departure) for i in range(num_procs)])
 
     pool = Pool(num_procs)
     result = pool.map(compute_series, split_flights)
