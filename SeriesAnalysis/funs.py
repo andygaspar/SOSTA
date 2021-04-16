@@ -94,16 +94,46 @@ def compute_series(tup):
 
     return series
 
+def compute_series_1(tup):
+    series_list, dep, time_tolerance, min_occurrences, is_departure = tup
+    columns = ['icao24', 'departure', 'arrival', 'callsign', 'day', 'week day', 'series code', 'series',
+               'airline', 'is_departure', 'mean_time', 'len_series']
+    series = pd.DataFrame(columns=columns)
+    dep_arr = "dep time minute" if is_departure else "arr time minute"
 
-def find_series(df, day, tol, min_occurrence, is_departure: bool, num_procs=1):
+    for s in series_list:
+        ser = dep[dep.series == s]
+        ser = ser.sort_values(by="day")
+        mean = ser[dep_arr].mean()
+        outs = ser.iloc[:5].copy()
+        outs["deviation"] = np.absolute(outs.dep_arr - mean)
+        mean = outs[outs.deviation != max(outs.deviation)][dep_arr].mean()
+        if ser.shape[0] < 10:
+            to_append = ser[columns[:-2]].iloc[0].to_list() + [is_departure] + [mean] + [ser.shape[0]]
+            series = series.append(dict(zip(columns, to_append)), ignore_index=True)
+        else:
+            initial = 0
+            final = 6
+            for i in range(6, ser.shape[0]-4):
+                t = ser.iloc[i][dep_arr].values[0]
+                if t < mean + time_tolerance or  t > mean - time_tolerance:
+                    final = i
+                else:
+                    right_mean = ser.iloc[i+1:i+5][dep_arr].mean()
+                    if right_mean < mean + time_tolerance or  right_mean > mean - time_tolerance:
+                        final = i
+                    else:
+                        pass
+    return series
+
+
+def find_day_series(df, day, tol, min_occurrence, is_departure: bool, num_procs=1):
 
     df_day = df[df["week day"] == day]
     series = df_day.series.unique()
     len_tot = series.shape[0]
     len_slice = len_tot // num_procs
     split_series = [i * len_slice for i in range(num_procs)] + [len_tot]
-    partial_time = time.time()
-
     split_flights = tuple([(series[split_series[i]: split_series[i + 1]], df_day[
         df_day.series.isin(series[split_series[i]: split_series[i + 1]])], tol,
                             min_occurrence, is_departure) for i in range(num_procs)])
@@ -113,7 +143,22 @@ def find_series(df, day, tol, min_occurrence, is_departure: bool, num_procs=1):
     final_df = pd.concat(result, ignore_index=True)
     pool.close()
     pool.join()
-    print("paritial", time.time() - partial_time)
+
+    return final_df
+
+
+def find_series(df, days, tol, min_occurrence, is_departure: bool, num_procs=1):
+
+    if type(days) == int:
+        return find_day_series(df, days, tol, min_occurrence, is_departure, num_procs)
+
+    columns = ['icao24', 'departure', 'arrival', 'callsign', 'day', 'week day', 'series code', 'series',
+               'airline', 'is_departure', 'mean_time']
+    final_df = pd.DataFrame(columns=columns)
+
+    for day in days:
+        result = find_day_series(df, day, tol, min_occurrence, is_departure, num_procs)
+        final_df = pd.concat([final_df, result], ignore_index=True)
 
     return final_df
 

@@ -1,15 +1,13 @@
 import pandas as pd
-from airport import Airport
-from flight import Flight
-import numpy as np
 import datetime
 
 pd.set_option('display.max_columns', None)
 
+
 def filter_airports(df_fulvio):
     df = pd.read_csv(df_fulvio, sep="\t")
 
-    airports = pd.read_csv("../data/airports.csv", index_col=None).drop(columns="Unnamed: 0")
+    airports = pd.read_csv("data/airports.csv", index_col=None).drop(columns="Unnamed: 0")
     final_df = pd.DataFrame(columns=df.columns)
     i = 0
     for airport in airports["airport"]:
@@ -18,7 +16,6 @@ def filter_airports(df_fulvio):
         temp = df[(df["estdepartureairport"] == airport) ^ (df["estarrivalairport"] == airport)]
         final_df = pd.concat([final_df, temp])
 
-    # final_df.to_csv("europe_2019.csv")
     return final_df
 
 
@@ -56,8 +53,8 @@ def from_row_to_season(df_row, year, save=False):
         print(final_df)
 
 
-# df = pd.read_csv("data/europe_2019.csv")
-# ddf = filter_airports("data/data_row_fulvio_2018.csv")
+
+from_row_to_season("data/data_row_fulvio_2019.csv", 2019, True)
 
 
 
