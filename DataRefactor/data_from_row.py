@@ -44,15 +44,15 @@ def from_row_to_season(df_row, year, save=False):
     # final_df.to_csv("europe"+str(year)+".csv")
     final_df = rename(final_df)
     final_df = day_converter(final_df)
-    final_df = final_df[(pd.to_datetime(final_df["day"]) >= datetime.datetime(year, 3, 21)) &
-                        (pd.to_datetime(final_df["day"]) < datetime.datetime(year, 10, 27))]
+    start = datetime.datetime(year, 3, 31) if year == 2019 else datetime.datetime(year, 4, 1)
+    end = datetime.datetime(year, 10, 27) if year == 2019 else datetime.datetime(year, 10, 28)
+    final_df = final_df[(pd.to_datetime(final_df["day"]) >= start) &
+                        (pd.to_datetime(final_df["day"]) < end)]
 
     if save:
         final_df.to_csv("data/summer_"+str(year)+".csv", index_label=False, index=False)
     else:
         print(final_df)
-
-
 
 from_row_to_season("data/data_row_fulvio_2019.csv", 2019, True)
 

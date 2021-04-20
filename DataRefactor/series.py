@@ -136,7 +136,7 @@ def find_series_1(df_summer, year, save=False):
         print(final_df)
     print(time.time()-t)
 
+print("yep")
+df = pd.read_csv("data/summer_2018.csv")
 
-df = pd.read_csv("data/summer_2019.csv")
-
-find_series_1(df, 2019, save=True)
+find_series_1(df, 2018, save=True)
