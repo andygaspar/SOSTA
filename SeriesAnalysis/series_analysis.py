@@ -60,7 +60,6 @@ for call in not_ok_dep.callsign.unique():
         for a in dd.arrival.unique():
             da = dd[dd.arrival == a]
             line = series_2019_arrival[series_2019_arrival.callsign == call].copy()
-            print(line)
             line.is_departure = True
             line.mean_time = f.compute_mean(da["dep time minute"], da["dep time minute"].mean(), 30)
             add_to_departure = pd.concat([add_to_departure, line])
@@ -77,7 +76,6 @@ for call in not_ok_arr.callsign.unique():
         for a in dd.arrival.unique():
             da = dd[dd.arrival == a]
             line = series_2019_departures[series_2019_departures.callsign == call].copy()
-            print(line)
             line.is_departure = False
             line.mean_time = f.compute_mean(da["arr time minute"], da["arr time minute"].mean(), 30)
             add_to_arrival = pd.concat([add_to_arrival, line])
@@ -130,7 +128,7 @@ for icao24 in first_day.icao24.unique():
         day_0_df = day_0_df.append(dict(zip(columns,line)), ignore_index=True)
         turn_around = True
 
-
+day_0_df.to_csv("data/test_definitive/test_flights_day.csv",  index_label=False, index=False, sep="\t")
 
 """
 not regular
@@ -193,6 +191,7 @@ num_to_date = dict(zip(range(len(series_2018_departure.day.unique())), np.sort(s
 first_day_gf = series_2018_departure[series_2018_departure.day == num_to_date[0]]
 gf = f.get_gf_rights(first_day_gf, departure)
 
+gf.to_csv("data/test_definitive/test_gf.csv", index_label=False, index=False, sep="\t")
 
 def get_new_entries(gf, next_year_series, departure):
     new_entries = pd.DataFrame(columns=["airport", "airline"])
@@ -207,3 +206,6 @@ def get_new_entries(gf, next_year_series, departure):
 
 
 new_entries = get_new_entries(gf, first_day, True)
+new_entries.to_csv("data/test_definitive/new_entries.csv", index_label=False, index= False, sep= "\t")
+
+num_airlines = gf.airline.unique().shape[0]
